@@ -13,14 +13,14 @@ using the Azure Python SDK.
 **On this page**
 
 - [Run this sample](#run)
-- [What is example.py doing?](#example)
-    - [List resource groups](#list-groups)
-    - [Create a resource group](#create-group)
-    - [Update a resource group](#update-group)
-    - [Create a key vault in the resource group](#create-resource)
-    - [List resources within the group](#list-resources)
-    - [Export the resource group template](#export)
-    - [Delete a resource group](#delete-group)
+- What is example.py doing?
+    - List resource groups
+    - Create a resource group
+    - Update a resource group
+    - Create a key vault in the resource group
+    - List resources within the group
+    - Export the resource group template
+    - Delete a resource group
 
 <a id="run"></a>
 ## Run this sample
