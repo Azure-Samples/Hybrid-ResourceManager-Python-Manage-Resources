@@ -4,7 +4,7 @@ platforms: python
 author: viananth
 ---
 
-# Manage Azure resources and resource groups with Python
+# Hybrid-ResourceManager-Python-Manage-Resources
 
 This sample explains how to manage your
 [resources and resource groups in Azure Stack](https://azure.microsoft.com/en-us/documentation/articles/resource-group-overview/#resource-groups)
