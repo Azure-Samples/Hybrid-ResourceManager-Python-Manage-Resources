@@ -31,6 +31,7 @@ LOCATION = os.environ['AZURE_RESOURCE_LOCATION']
 postfix = random.randint(100, 500)
 GROUP_NAME = 'azure-sample-group-resources-{}'.format(postfix)
 
+
 def run_example():
     """Resource Group management example."""
     #
@@ -65,12 +66,14 @@ def run_example():
 
     # Create Resource group
     print('Create Resource Group')
-    print_item(client.resource_groups.create_or_update(GROUP_NAME, resource_group_params))
+    print_item(client.resource_groups.create_or_update(
+        GROUP_NAME, resource_group_params))
 
     # Modify the Resource group
     print('Modify Resource Group')
     resource_group_params.update(tags={'hello': 'world'})
-    print_item(client.resource_groups.create_or_update(GROUP_NAME, resource_group_params))
+    print_item(client.resource_groups.create_or_update(
+        GROUP_NAME, resource_group_params))
 
     # Create a Key Vault in the Resource Group
     print('Create a Key Vault via a Generic Resource Put')
@@ -101,7 +104,8 @@ def run_example():
 
     # Export the Resource group template
     print('Export Resource Group Template')
-    print(json.dumps(client.resource_groups.export_template(GROUP_NAME, ['*']).template, indent=4))
+    print(json.dumps(client.resource_groups.export_template(
+        GROUP_NAME, ['*']).template, indent=4))
     print('\n\n')
 
     # Delete Resource group and everything in it
