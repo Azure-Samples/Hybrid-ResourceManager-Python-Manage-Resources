@@ -1,7 +1,11 @@
 ---
-services: Azure-Stack
-platforms: python
-author: viananth
+page_type: sample
+languages:
+- python
+products:
+- azure
+description: "This sample explains how to manage your resources and resource groups in Azure Stack using the Azure Python SDK."
+urlFragment: Hybrid-ResourceManager-Python-Manage-Resources
 ---
 
 # Hybrid-ResourceManager-Python-Manage-Resources
