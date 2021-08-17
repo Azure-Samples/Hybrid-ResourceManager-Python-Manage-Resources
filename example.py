@@ -18,8 +18,8 @@ import logging
 import json
 from datetime import datetime
 
-from azure.common.credentials import ServicePrincipalCredentials
 from azure.mgmt.resource import ResourceManagementClient
+from azure.identity import ClientSecretCredential, DefaultAzureCredential
 
 from msrestazure.azure_cloud import get_cloud_from_metadata_endpoint
 from azure.profiles import KnownProfiles
@@ -39,19 +39,22 @@ def run_example():
     mystack_cloud = get_cloud_from_metadata_endpoint(
         os.environ['ARM_ENDPOINT'])
     subscription_id = os.environ['AZURE_SUBSCRIPTION_ID']
-    credentials = ServicePrincipalCredentials(
+
+    credentials = ClientSecretCredential(
         client_id=os.environ['AZURE_CLIENT_ID'],
-        secret=os.environ['AZURE_CLIENT_SECRET'],
-        tenant=os.environ['AZURE_TENANT_ID'],
-        cloud_environment=mystack_cloud
+        client_secret=os.environ['AZURE_CLIENT_SECRET'],
+        tenant_id=os.environ['AZURE_TENANT_ID'],
+        authority=mystack_cloud.endpoints.active_directory
     )
 
-    # By Default, use AzureStack supported profile
-    KnownProfiles.default.use(KnownProfiles.v2018_03_01_hybrid)
+    KnownProfiles.default.use(KnownProfiles.v2020_09_01_hybrid)
     logging.basicConfig(level=logging.ERROR)
-
+    scope = "openid profile offline_access" + " " + mystack_cloud.endpoints.active_directory_resource_id + "/.default"
     client = ResourceManagementClient(
-        credentials, subscription_id, base_url=mystack_cloud.endpoints.resource_manager)
+        credentials , subscription_id,
+        base_url=mystack_cloud.endpoints.resource_manager,
+        #profile=KnownProfiles.v2020_09_01_hybrid,
+        credential_scopes=[scope])
 
     #
     # Managing resource groups
@@ -85,14 +88,16 @@ def run_example():
             'enabledForDiskEncryption': True
         }
     }
-    client.resources.create_or_update(GROUP_NAME,
-                                      'Microsoft.KeyVault',
-                                      '',
-                                      'vaults',
-                                      # Suffix random string to make vault name unique
-                                      'azureSampleVault' + datetime.utcnow().strftime("-%H%M%S"),
-                                      '2015-06-01',
-                                      key_vault_params)
+
+    client.resources.begin_create_or_update(
+        resource_group_name=GROUP_NAME,
+        resource_provider_namespace="Microsoft.KeyVault",
+        parent_resource_path="",
+        resource_type="vaults",
+        resource_name='azureSampleVault' + datetime.utcnow().strftime("-%H%M%S"),
+        parameters = key_vault_params,
+        api_version="2016-10-01"
+    ).result()
 
     # List Resources within the group
     print('List all of the resources within the group')
@@ -101,13 +106,16 @@ def run_example():
 
     # Export the Resource group template
     print('Export Resource Group Template')
-    print(json.dumps(client.resource_groups.export_template(GROUP_NAME, ['*']).template, indent=4))
+    BODY = {
+        'resources': ['*']
+    }
+    rgTemplate = client.resource_groups.begin_export_template(GROUP_NAME, BODY).result()
+    print(rgTemplate.template)
     print('\n\n')
 
     # Delete Resource group and everything in it
     print('Delete Resource Group')
-    delete_async_operation = client.resource_groups.delete(GROUP_NAME)
-    delete_async_operation.wait()
+    client.resource_groups.begin_delete(GROUP_NAME).result()
     print("\nDeleted: {}".format(GROUP_NAME))
 
 
